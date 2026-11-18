@@ -1,7 +1,11 @@
 import { parseISO } from "date-fns";
-import { Spot } from "@binance/spot";
+import { Spot, SPOT_REST_API_PROD_URL } from "@binance/spot";
 
-const binanceClient = new Spot();
+const binanceClient = new Spot({
+  configurationRestAPI: {
+    basePath: SPOT_REST_API_PROD_URL,
+  },
+});
 
 async function getKlinesBinance({
   symbol,
@@ -27,27 +31,13 @@ async function getKlinesBinance({
     params.endTime = end.getTime();
   }
 
-  let klines;
-
-  try {
-    // Pass the dynamic `params` object directly into Binance SDK
-    klines = await binanceClient.restAPI
-      .klines(params)
-      .then((response) => response.data());
-  } catch (error) {
-    const isRateLimit =
-      error.code === 429 ||
-      error.status === 429 ||
-      error.response?.status === 429;
-
-    if (isRateLimit) {
-      console.warn(`Binance rate limit hit (429) for symbol ${symbol}.`);
-      return { klines: [], rateLimitExceeded: true };
-    }
-
-    console.error(`Request failed: ${error.code} ${error.message}`);
-    throw error;
-  }
+  // Pass the dynamic `params` object directly into Binance SDK
+  const klines = await binanceClient.restAPI
+    .klines(params)
+    .then((response) => response.data())
+    .catch((error) => {
+      throw error;
+    });
 
   const formattedKlines = klines.map((k) => ({
     symbol,
@@ -61,7 +51,7 @@ async function getKlinesBinance({
     isFinal: Number(k[6]) < Date.now(),
   }));
 
-  return { klines: formattedKlines, rateLimitExceeded: false };
+  return formattedKlines;
 }
 
 export default getKlinesBinance;
