@@ -1,5 +1,4 @@
 import getLatestListing from "../utils/getLatestListing.js";
-import fetchKlinesFromSymbol from "./utils/fetchKlinesFromSymbol.js";
 
 const INTERVAL = "1h";
 const LIMIT = 30;
@@ -12,7 +11,7 @@ async function marketWorker() {
 
   for (const token of latestListingCrypto) {
     const symbol = token.symbol;
-    console.log(symbol);
+    cryptoSymbols.push(`${symbol}USDT`);
   }
 }
 
