@@ -8,7 +8,7 @@ async function getLatestListing() {
   const { data, error } = await cmc.api.cryptocurrency.listingsLatest({
     query: {
       start: "1",
-      limit: "3",
+      limit: "5",
       sort: "market_cap",
       sort_dir: "desc",
       convert: "USDT",
